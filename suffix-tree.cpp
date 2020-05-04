@@ -123,7 +123,7 @@ class SuffixTree{
  
 };
 
- int main(){
-     Node *teste = new Node("teste");
-     return 0;
- };
+int main(){
+    Node *teste = new Node("teste");
+    return 0;
+};
