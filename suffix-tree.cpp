@@ -1,7 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 using namespace std;
 
@@ -14,7 +14,7 @@ struct Node {
     Node *o;Node *p;Node *q;Node *r;Node *s;Node *t;Node *u;
     Node *v;Node *w;Node *x;Node *y;Node *z;
 
-    Node(string x): suffix(x){
+    Node(string word): suffix(word){
         adress = nullptr;
         Node *a = nullptr; Node *b = nullptr; Node *c = nullptr; Node *d = nullptr; Node *e = nullptr;
         Node *f = nullptr; Node *g = nullptr; Node *h = nullptr; Node *i = nullptr; Node *j = nullptr;
@@ -105,22 +105,84 @@ void set_z(Node **&curr){
     curr = &((*curr)->z); 
 };
 
+typedef void(*set_func)(Node **&cur);
+map<string,set_func> create_table (){
+    map <string, set_func> table;
+    table["a"] = &set_a; table["b"] = &set_b;  table["c"] = &set_c; table["d"] = &set_d; table["e"] = &set_e; table["f"] = &set_f; 
+    table["g"] = &set_g; table["h"] = &set_h;  table["i"] = &set_i; table["j"] = &set_j; table["k"] = &set_k; table["l"] = &set_l; 
+    table["m"] = &set_m; table["n"] = &set_n;  table["o"] = &set_o; table["p"] = &set_p; table["q"] = &set_q; table["r"] = &set_r; 
+    table["s"] = &set_s; table["t"] = &set_tt; table["u"] = &set_u; table["v"] = &set_v; table["w"] = &set_w; table["x"] = &set_x; 
+    table["y"] = &set_y; table["z"] = &set_z;
+    return table;  
+};
+
+map<string,set_func> table = create_table();
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class SuffixTree{
     private:
-        Node *pRoot;
-        void hash(){
-            typedef void(*set_func)(Node **&cur);
-            unordered_map <string, set_func> m;
+        Node *pRoot;   
 
-            m["a"] = &set_a; m["b"] = &set_b;  m["c"] = &set_c; m["d"] = &set_d; m["e"] = &set_e; m["f"] = &set_f; 
-            m["g"] = &set_g; m["h"] = &set_h;  m["i"] = &set_i; m["j"] = &set_j; m["k"] = &set_k; m["l"] = &set_l; 
-            m["m"] = &set_m; m["n"] = &set_n;  m["o"] = &set_o; m["p"] = &set_p; m["q"] = &set_q; m["r"] = &set_r; 
-            m["s"] = &set_s; m["t"] = &set_tt; m["u"] = &set_u; m["v"] = &set_v; m["w"] = &set_w; m["x"] = &set_x; 
-            m["y"] = &set_y; m["z"] = &set_z;
+    public:
+        SuffixTree(): pRoot(nullptr){
         };
- 
+
+        void insert(string suffix) {
+            Node **p;
+            if (!find_insert(suffix, p)) {
+                cout<<"palavra"<<suffix<<"inserida na árvore"<<endl;
+            }
+        }
+        
+        bool find_insert(string suf, Node **&p) {
+            p = &pRoot;
+            string curl;
+            string curw;
+            int l;
+            while(*p) {
+                l = curw.length()-1;
+                string k = (*p)->suffix;
+                for(int i=0;i<(k.length());i++){
+                    if(suf[l+i]!=k[i]){
+                        //se o sufixo atual tem letras diferentes da palavra procurada
+                        //dividimos o Node e inserimos o resto da palavra
+                        Node *n = new Node(k.substr(i));
+                        (*p)->suffix = k.substr(0,i-1);
+                        Node **t = p;
+                        table[k[i]](p);
+                        *p = n;
+                        p = t;
+                        table[suf[i]](p);
+                        (*p)->suffix = suf.substr(i);
+                        return false;
+                    }
+                }
+                curw+=((*p)->suffix);
+                if(curw==suf)return true;
+                curl = suf[curw.length()];
+                table[curl](p);
+            };
+            //insere o resto da palavra
+            (*p)->suffix = suf.substr(curw.length());
+            return false;
+        }
+
+         bool find(string word, Node **&p) {
+            p = &pRoot;
+            string curw;
+            string curl;
+            Node **k;
+            while(*p){
+                k = p;
+                curw+=((*p)->suffix);
+                if(curw==word)return true;
+                curl = word[curw.length()];
+                table[curl](p);
+            }
+            p = k;
+            return false;
+        }
+
 };
 
 int main(){
