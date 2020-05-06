@@ -138,10 +138,12 @@ class SuffixTree{
             p = &pRoot;
             string curl;
             string curw;
+            string s;
+            string k;
             int l;
             while(*p) {
                 l = curw.length()-1;
-                string k = (*p)->suffix;
+                k = (*p)->suffix;
                 for(int i=0;i<(k.length());i++){
                     if(suf[l+i]!=k[i]){
                         //se o sufixo atual tem letras diferentes da palavra procurada
@@ -149,10 +151,12 @@ class SuffixTree{
                         Node *n = new Node(k.substr(i));
                         (*p)->suffix = k.substr(0,i-1);
                         Node **t = p;
-                        table[k[i]](p);
+                        s = k[i];
+                        (table.find(s)->second)(p);
                         *p = n;
                         p = t;
-                        table[suf[i]](p);
+                        s = suf[i];
+                        (table.find(s)->second)(p);
                         (*p)->suffix = suf.substr(i);
                         return false;
                     }
@@ -160,7 +164,7 @@ class SuffixTree{
                 curw+=((*p)->suffix);
                 if(curw==suf)return true;
                 curl = suf[curw.length()];
-                table[curl](p);
+                (table.find(curl)->second)(p);
             };
             //insere o resto da palavra
             (*p)->suffix = suf.substr(curw.length());
@@ -177,7 +181,7 @@ class SuffixTree{
                 curw+=((*p)->suffix);
                 if(curw==word)return true;
                 curl = word[curw.length()];
-                table[curl](p);
+                (table.find(curl)->second)(p);
             }
             p = k;
             return false;
@@ -187,5 +191,7 @@ class SuffixTree{
 
 int main(){
     Node *teste = new Node("teste");
+    SuffixTree arvore;
+    cout<<"rodei"<<endl;
     return 0;
 };
