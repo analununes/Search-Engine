@@ -130,87 +130,46 @@ class SuffixTree{
         void insert(string suffix) {
             Node **p;
             string curw;
-            cout<<"insert"<<endl;
             if (!find_insert(suffix, p,curw)) {
-                cout<<"entrou find"<<endl;
-                cout<<curw<<endl;
                 if (curw.length()==0){
-                    cout<<"ifzin"<<endl;
                     *p = new Node(suffix);
                 }else{
                     *p = new Node(suffix.substr(curw.length()));
-                    cout<<pRoot->suffix<<endl;
                 }
                 cout<<"palavra "<<(*p)->suffix<<" inserida na árvore"<<endl;
             }
         }
         
         bool find_insert(string suf, Node **&p,string &curw) {
-            cout<<"findinsert"<<endl;
             p = &pRoot;
             string curl;
-            //string curw;
             string s;
             string k;
             int l;
             while(*p) {
-                cout<<"while"<<endl;
                 l = curw.length();
                 k = (*p)->suffix;
-                cout<<"k "<<k<<endl;
                 for(int i=0;i<(k.length());i++){
                     if(suf[l+i]!=k[i]){
                         //se o sufixo atual tem letras diferentes da palavra procurada
-                        //dividimos o Node e inserimos o resto da palavra
-                        //Node *n = new Node(k.substr(i));
-                        cout<<suf[l+i]<<endl;
-                        cout<<k[i]<<endl;
-                        cout<<curw<<endl;
-                        cout<<l<<i<<endl;
-                        //Node *m = new Node(suf.substr(l+i));
-                        //(*p)->suffix = k.substr(0,i-1);
-                        //Node **j = p;
+                        //dividimos o Node 
                         *p = new Node(k.substr(0,i));
                         curw+=k.substr(0,i);
-                        cout<<"teste curw "<<curw<<endl;
                         Node **t = p;
                         s = k[i];
                         (table.find(s)->second)(p);
                         *p = new Node(k.substr(i));
-                        //s = suf[i];
-                        //(table.find(s)->second)(p);
-                        //*p = n;
                         p = t;
                         s = suf[l+i];
-                        cout<<s<<endl;
                         (table.find(s)->second)(p);
-                        //s = suf[i];
-                        //(table.find(s)->second)(p);
-                        //(*p)->suffix = suf.substr(i);
-                        //cout<<"palavra "<<suf<<" inserida na árvore"<<endl;
                         return false;
                     }
                 }
                 curw+=((*p)->suffix);
-                cout<<"curw"<<curw<<endl;
                 if(curw==suf)return true;
                 curl = suf[curw.length()];
                 (table.find(curl)->second)(p);
             };
-            //insere o resto da palavra
-            cout<<"aqui"<<endl;
-            /*if (curw.length()!=0){
-                *p = new Node(suf.substr(curw.length()));
-                //*p = t;
-            }else{
-                //Node *t = new Node(suf); 
-                curl = suf[0];
-                (table.find(curl)->second)(p);
-                cout<<"table"<<endl;
-                Node *t = new Node(suf);
-                *p = t;
-                cout<<"node"<<endl;
-            }*/
             return false;
         }
 
@@ -219,21 +178,12 @@ class SuffixTree{
             p = &pRoot;
             string curw;
             string curl;
-            //Node **k;
             while(*p){
-                /*k = p;
                 curw+=((*p)->suffix);
-                if(curw==word)return true;
-                curl = word[curw.length()];
-                cout<<"oh"<<endl;
-                (table.find(curl)->second)(p);*/
-                curw+=((*p)->suffix);
-                cout<<"curw"<<curw<<endl;
                 if(curw==suf)return true;
                 curl = suf[curw.length()];
                 (table.find(curl)->second)(p);
             }
-            //p = k;
             return false;
         }
 
