@@ -121,47 +121,73 @@ map<string,set_func> table = create_table();
 
 class SuffixTree{
     private:
-        Node *pRoot;   
+        Node *pRoot;  
 
     public:
         SuffixTree(): pRoot(nullptr){
         };
 
         void insert(string suffix) {
-            Node **p = new Node;
+            Node **p;
+            string curw;
             cout<<"insert"<<endl;
-            if (!find_insert(suffix, p)) {
-                cout<<"palavra"<<suffix<<"inserida na árvore"<<endl;
+            if (!find_insert(suffix, p,curw)) {
+                cout<<"entrou find"<<endl;
+                cout<<curw<<endl;
+                if (curw.length()==0){
+                    cout<<"ifzin"<<endl;
+                    *p = new Node(suffix);
+                }else{
+                    *p = new Node(suffix.substr(curw.length()));
+                    cout<<pRoot->suffix<<endl;
+                }
+                cout<<"palavra "<<(*p)->suffix<<" inserida na árvore"<<endl;
             }
         }
         
-        bool find_insert(string suf, Node **&p) {
+        bool find_insert(string suf, Node **&p,string &curw) {
             cout<<"findinsert"<<endl;
             p = &pRoot;
             string curl;
-            string curw;
+            //string curw;
             string s;
             string k;
             int l;
             while(*p) {
                 cout<<"while"<<endl;
-                l = curw.length()-1;
+                l = curw.length();
                 k = (*p)->suffix;
-                cout<<"k"<<k<<endl;
+                cout<<"k "<<k<<endl;
                 for(int i=0;i<(k.length());i++){
                     if(suf[l+i]!=k[i]){
                         //se o sufixo atual tem letras diferentes da palavra procurada
                         //dividimos o Node e inserimos o resto da palavra
-                        Node *n = new Node(k.substr(i));
-                        (*p)->suffix = k.substr(0,i-1);
+                        //Node *n = new Node(k.substr(i));
+                        cout<<suf[l+i]<<endl;
+                        cout<<k[i]<<endl;
+                        cout<<curw<<endl;
+                        cout<<l<<i<<endl;
+                        //Node *m = new Node(suf.substr(l+i));
+                        //(*p)->suffix = k.substr(0,i-1);
+                        //Node **j = p;
+                        *p = new Node(k.substr(0,i));
+                        curw+=k.substr(0,i);
+                        cout<<"teste curw "<<curw<<endl;
                         Node **t = p;
                         s = k[i];
                         (table.find(s)->second)(p);
-                        *p = n;
+                        *p = new Node(k.substr(i));
+                        //s = suf[i];
+                        //(table.find(s)->second)(p);
+                        //*p = n;
                         p = t;
-                        s = suf[i];
+                        s = suf[l+i];
+                        cout<<s<<endl;
                         (table.find(s)->second)(p);
-                        (*p)->suffix = suf.substr(i);
+                        //s = suf[i];
+                        //(table.find(s)->second)(p);
+                        //(*p)->suffix = suf.substr(i);
+                        //cout<<"palavra "<<suf<<" inserida na árvore"<<endl;
                         return false;
                     }
                 }
@@ -173,34 +199,41 @@ class SuffixTree{
             };
             //insere o resto da palavra
             cout<<"aqui"<<endl;
-            if (curw.length()!=0){
-                (*p)->suffix = suf.substr(curw.length());
+            /*if (curw.length()!=0){
+                *p = new Node(suf.substr(curw.length()));
+                //*p = t;
             }else{
-                cout<<"else"<<endl;
+                //Node *t = new Node(suf); 
                 curl = suf[0];
-                cout<<"suf"<<endl;
                 (table.find(curl)->second)(p);
                 cout<<"table"<<endl;
-                cout<<suf<<endl;
-                (*p)->suffix = suf;
+                Node *t = new Node(suf);
+                *p = t;
                 cout<<"node"<<endl;
-            }
+            }*/
             return false;
         }
 
-         bool find(string word, Node **&p) {
+         bool find(string suf) {
+            Node **p;
             p = &pRoot;
             string curw;
             string curl;
-            Node **k;
+            //Node **k;
             while(*p){
-                k = p;
+                /*k = p;
                 curw+=((*p)->suffix);
                 if(curw==word)return true;
                 curl = word[curw.length()];
+                cout<<"oh"<<endl;
+                (table.find(curl)->second)(p);*/
+                curw+=((*p)->suffix);
+                cout<<"curw"<<curw<<endl;
+                if(curw==suf)return true;
+                curl = suf[curw.length()];
                 (table.find(curl)->second)(p);
             }
-            p = k;
+            //p = k;
             return false;
         }
 
@@ -209,7 +242,19 @@ class SuffixTree{
 int main(){
     Node *teste = new Node("teste");
     SuffixTree arvore;
-    arvore.insert("model");
-    cout<<"rodei"<<endl;
+    arvore.insert("*");
+    arvore.insert("*model");
+    arvore.insert("*nail");
+    arvore.insert("*mobile");
+    if(arvore.find("*nail")){
+        cout<<"1"<<endl;
+    };
+    if(arvore.find("*mobile")){
+        cout<<"2"<<endl;
+    };
+    if(arvore.find("*model")){
+        cout<<"3"<<endl;
+    };
+    cout<<"*rodei"<<endl;
     return 0;
 };
