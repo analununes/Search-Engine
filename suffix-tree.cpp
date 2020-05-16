@@ -2,6 +2,10 @@
 #include <iomanip>
 #include <string>
 #include <map>
+#include <fstream>  
+#include <bits/stdc++.h> 
+#include <cctype>
+#include <stdio.h>
 
 using namespace std;
 
@@ -13,6 +17,8 @@ struct Node {
     Node *h;Node *i;Node *j;Node *k;Node *l;Node *m;Node *n;
     Node *o;Node *p;Node *q;Node *r;Node *s;Node *t;Node *u;
     Node *v;Node *w;Node *x;Node *y;Node *z;
+    Node *n1;Node *n2;Node *n3;Node *n4;Node *n5;
+    Node *n6;Node *n7;Node *n8;Node *n9;Node *n0;
 
     Node(string word): suffix(word){
         adress = nullptr;
@@ -21,7 +27,9 @@ struct Node {
         Node *k = nullptr; Node *l = nullptr; Node *m = nullptr; Node *n = nullptr; Node *o = nullptr; 
         Node *p = nullptr; Node *q = nullptr; Node *r = nullptr; Node *s = nullptr; Node *t = nullptr;
         Node *u = nullptr; Node *v = nullptr; Node *w = nullptr; Node *x = nullptr; Node *y = nullptr;
-        Node *z = nullptr;
+        Node *z = nullptr; 
+        Node *n1 = nullptr; Node *n2 = nullptr; Node *n3 = nullptr; Node *n4 = nullptr;Node *n5 = nullptr;
+        Node *n6 = nullptr; Node *n7 = nullptr; Node *n8 = nullptr; Node *n9 = nullptr;Node *n0 = nullptr;
     }
 };   
 
@@ -104,6 +112,36 @@ void set_y(Node **&curr){
 void set_z(Node **&curr){
     curr = &((*curr)->z); 
 };
+void set_1(Node **&curr){
+    curr = &((*curr)->n1); 
+};
+void set_2(Node **&curr){
+    curr = &((*curr)->n2); 
+};
+void set_3(Node **&curr){
+    curr = &((*curr)->n3); 
+};
+void set_4(Node **&curr){
+    curr = &((*curr)->n4); 
+};
+void set_5(Node **&curr){
+    curr = &((*curr)->n5); 
+};
+void set_6(Node **&curr){
+    curr = &((*curr)->n6); 
+};
+void set_7(Node **&curr){
+    curr = &((*curr)->n7); 
+};
+void set_8(Node **&curr){
+    curr = &((*curr)->n8); 
+};
+void set_9(Node **&curr){
+    curr = &((*curr)->n9); 
+};
+void set_0(Node **&curr){
+    curr = &((*curr)->n0); 
+};
 
 typedef void(*set_func)(Node **&cur);
 map<string,set_func> create_table (){
@@ -112,7 +150,9 @@ map<string,set_func> create_table (){
     table["g"] = &set_g; table["h"] = &set_h;  table["i"] = &set_i; table["j"] = &set_j; table["k"] = &set_k; table["l"] = &set_l; 
     table["m"] = &set_m; table["n"] = &set_n;  table["o"] = &set_o; table["p"] = &set_p; table["q"] = &set_q; table["r"] = &set_r; 
     table["s"] = &set_s; table["t"] = &set_tt; table["u"] = &set_u; table["v"] = &set_v; table["w"] = &set_w; table["x"] = &set_x; 
-    table["y"] = &set_y; table["z"] = &set_z;
+    table["y"] = &set_y; table["z"] = &set_z;  table["1"] = &set_1; table["2"] = &set_2; table["3"] = &set_3; table["4"] = &set_4; 
+    table["5"] = &set_5; table["6"] = &set_6;  table["7"] = &set_7; table["8"] = &set_8; table["9"] = &set_9;
+    table["0"] = &set_0;
     return table;  
 };
 
@@ -136,15 +176,15 @@ class SuffixTree{
                 }else{
                     *p = new Node(suffix.substr(curw.length()));
                 }
-                cout<<"palavra "<<(*p)->suffix<<" inserida na árvore"<<endl;
+                cout<<"sufixo "<<(*p)->suffix<<" inserida na árvore"<<endl;
             }
         }
         
         bool find_insert(string suf, Node **&p,string &curw) {
             p = &pRoot;
+            Node **daddy = p;
             string curl;
-            string s;
-            string k;
+            string s,m,k;
             int l;
             while(*p) {
                 l = curw.length();
@@ -153,20 +193,28 @@ class SuffixTree{
                     if(suf[l+i]!=k[i]){
                         //se o sufixo atual tem letras diferentes da palavra procurada
                         //dividimos o Node 
+
                         *p = new Node(k.substr(0,i));
                         curw+=k.substr(0,i);
                         Node **t = p;
+                        cout<<curw<<endl;
                         s = k[i];
                         (table.find(s)->second)(p);
                         *p = new Node(k.substr(i));
                         p = t;
+                        if (l+i==suf.length()){
+                            return true;
+                        }else{
                         s = suf[l+i];
                         (table.find(s)->second)(p);
                         return false;
+                        }
+                        
                     }
                 }
                 curw+=((*p)->suffix);
                 if(curw==suf)return true;
+                daddy = p;
                 curl = suf[curw.length()];
                 (table.find(curl)->second)(p);
             };
@@ -180,8 +228,10 @@ class SuffixTree{
             string curl;
             while(*p){
                 curw+=((*p)->suffix);
+                cout<<curw<<endl;
                 if(curw==suf)return true;
                 curl = suf[curw.length()];
+                cout<<curl<<endl;
                 (table.find(curl)->second)(p);
             }
             return false;
@@ -190,21 +240,41 @@ class SuffixTree{
 };
 
 int main(){
-    Node *teste = new Node("teste");
     SuffixTree arvore;
     arvore.insert("*");
-    arvore.insert("*model");
-    arvore.insert("*nail");
-    arvore.insert("*mobile");
-    if(arvore.find("*nail")){
-        cout<<"1"<<endl;
-    };
-    if(arvore.find("*mobile")){
-        cout<<"2"<<endl;
-    };
-    if(arvore.find("*model")){
-        cout<<"3"<<endl;
-    };
-    cout<<"*rodei"<<endl;
+
+    ofstream outfile ("test.txt");
+
+    //outfile << "O território peruano abrigou a civilização de Caral, uma das mais antigas do mundo, bem como o Império Inca, considerado o maior Estado da América pré-colombiana. O seu território foi elevado a vice-reinado pelo Império Espanhol, no século XVI. Atualmente, o Peru é uma república presidencialista democrática dividida em 25 regiões. A sua geografia é variada, exibindo desde planícies áridas na costa do Pacífico, aos picos nevados dos Andes e à floresta amazônica, características que proporcionam a este país diversos recursos naturais."<< endl;
+    outfile << "Peruvian territory was home to several ancient cultures. Ranging from the Norte Chico civilization starting in 3500 BC, the oldest civilization in the Americas and one of the five cradles of civilization, to the Inca Empire, the largest state in pre-Columbian America, the territory now including Peru has one of the longest histories of civilization of any country, tracing its heritage back to the 4th millennia BCE." <<endl;
+    outfile.close();
+
+    // filestream variable file 
+    fstream file; 
+    string word, t, q, filename, a; 
+    int i;
+    // filename of the file 
+    filename = "test.txt"; 
+  
+    // opening file 
+    file.open(filename.c_str()); 
+  
+    // extracting words from the file 
+    while (file >> word) { 
+        i = 0;
+        a+='*';
+        while (word[i] != '\0') {
+        if ((word[i] > 47 && word[i] < 58) || (word[i] > 64 && word[i] < 91) || (word[i] > 96 && word[i] < 123) ){
+            a += tolower(word[i]);
+        }
+        i++;
+        }
+        if (a!=" "){
+            arvore.insert(a);
+        }
+        // displaying content 
+        cout << a << endl; 
+        a.clear();
+        }
     return 0;
 };
