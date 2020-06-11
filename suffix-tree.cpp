@@ -6,13 +6,30 @@
 #include <bits/stdc++.h> 
 #include <cctype>
 #include <stdio.h>
+#include <time.h>
 
 using namespace std;
 
+struct func{
+    string textId;
+    string title;
+    int nTitle;
+    int nText;
+    func *alfaNext;
+    func *rankNext;
+
+    func(string n): textId(n){
+        nTitle = 0;
+        nText = 0;
+        alfaNext = nullptr;
+        rankNext = nullptr;
+        title = "\0";
+    }
+};
 
 struct Node {
     string suffix;
-    Node *adress;
+    func *address;
     Node *a;Node *b;Node *c;Node *d;Node *e;Node *f;Node *g;
     Node *h;Node *i;Node *j;Node *k;Node *l;Node *m;Node *n;
     Node *o;Node *p;Node *q;Node *r;Node *s;Node *t;Node *u;
@@ -21,7 +38,7 @@ struct Node {
     Node *n6;Node *n7;Node *n8;Node *n9;Node *n0;
 
     Node(string word): suffix(word){
-        adress = nullptr;
+        func *addres = nullptr;
         Node *a = nullptr; Node *b = nullptr; Node *c = nullptr; Node *d = nullptr; Node *e = nullptr;
         Node *f = nullptr; Node *g = nullptr; Node *h = nullptr; Node *i = nullptr; Node *j = nullptr;
         Node *k = nullptr; Node *l = nullptr; Node *m = nullptr; Node *n = nullptr; Node *o = nullptr; 
@@ -167,16 +184,23 @@ class SuffixTree{
         SuffixTree(): pRoot(nullptr){
         };
 
+
         void insert(string suffix) {
             Node **p;
             string curw;
+            string suf;
             if (!find_insert(suffix, p,curw)) {
                 if (curw.length()==0){
                     *p = new Node(suffix);
+                    cout<<(((*p)->address))<<endl;
+                    cout<<"if"<<endl;
                 }else{
-                    *p = new Node(suffix.substr(curw.length()));
+                    suf = suffix.substr(curw.length());
+                    *p = new Node(suf);
+                    cout<<(((*p)->address))<<endl;
+                    cout<<"else"<<endl;
                 }
-                cout<<"sufixo "<<(*p)->suffix<<" inserida na árvore"<<endl;
+                //cout<<"sufixo "<<(*p)->suffix<<" inserido na árvore"<<endl;
             }
         }
         
@@ -197,7 +221,6 @@ class SuffixTree{
                         *p = new Node(k.substr(0,i));
                         curw+=k.substr(0,i);
                         Node **t = p;
-                        cout<<curw<<endl;
                         s = k[i];
                         (table.find(s)->second)(p);
                         *p = new Node(k.substr(i));
@@ -213,7 +236,9 @@ class SuffixTree{
                     }
                 }
                 curw+=((*p)->suffix);
-                if(curw==suf)return true;
+                if(curw==suf){
+                    return true;
+                }
                 daddy = p;
                 curl = suf[curw.length()];
                 (table.find(curl)->second)(p);
@@ -228,53 +253,461 @@ class SuffixTree{
             string curl;
             while(*p){
                 curw+=((*p)->suffix);
-                cout<<curw<<endl;
                 if(curw==suf)return true;
                 curl = suf[curw.length()];
-                cout<<curl<<endl;
                 (table.find(curl)->second)(p);
             }
             return false;
         }
+        
+        int search(string suf, func **&k) {
+            Node **p;
+            p = &pRoot;
+            string curw;
+            string curl;
+            int resu;
+            int li = 0;
+            while(*p){
+                curw+=((*p)->suffix);
+                if(curw==suf){
+                    k = &((*p)->address);
+                    return 1;
+                    }
+                curl = suf[curw.length()];
+                (table.find(curl)->second)(p);
+            }
+            return 0;
+        }
 
+        bool insert_loc(string suf, string text_id, int read_t, string titulo) {
+            Node **p;
+            p = &pRoot;
+            string curw;
+            string curl;
+            string nId;//
+            func **k;
+            func **froot;
+            func **prev;
+            func **fnew;
+            func **aux;
+            int curn;
+            bool alf,rank = 0;
+            while(*p){
+                curw+=((*p)->suffix);
+                if(curw==suf){
+                    froot = &((*p)->address);
+                    //root da linked list com o numero de resultados
+                    if(*froot==nullptr){
+                        *froot = new func("*"); 
+                    }
+                    
+                    /*prev = froot;
+                    k = &((*froot)->rankNext);
+                    while(*k){
+                        if((*k)->textId == text_id){
+                            *fnew  = new func(text_id); 
+                            (*fnew)->title = titulo; 
+                            aux = &((*k)->alfaNext);
+                            (*fnew)->alfaNext = *aux;
+                            //if (read_t){
+                                curn = ((*k)->nTitle);
+                                curn += 10*read_t;
+                                (*fnew)->nTitle = curn;
+                            //}else{
+                                curn = ((*k)->nText);
+                                curn += !read_t;
+                                ((*fnew)->nText) = curn;
+                            //}
+                            k = &((*k)->rankNext);
+                            ((*prev)->rankNext) = *k;
+                            rankeada(froot,fnew);
+                            return true;
+                        }
+                        prev = k;
+                        k = &((*k)->rankNext);  
+                    } */
+                    curn = (*froot)->nText;
+                    curn +=  1;
+                    (*froot)->nText = curn;
+                    nId = (*froot)->title;
+                    nId += text_id + " ";
+                    (*froot)->title = nId;
+                    nId.clear();
+                    *fnew = new func(text_id);
+                    //(*fnew)->nTitle = read_t ;
+                    (*fnew)->nText  = read_t;
+                    (*fnew)->title  = titulo;
+                    prev = froot;
+                    //alfabetica(froot,fnew);
+                    rankeada(prev,fnew);
+                    return true;
+                }
+                curl = suf[curw.length()];
+                (table.find(curl)->second)(p);
+            
+            }
+            
+            return false;
+        }
+
+        /*bool alfabetica(func **&froot, func **&k){
+            string titulo = (*k)->title;
+            string curr;
+            func **prev;
+            int title,text;
+            prev = froot;
+            froot = &((*froot)->alfaNext);
+            while(*froot){
+                curr = (*froot)->title;
+                int i = 0;
+                int minimo = min(curr.length(),titulo.length());
+                for(i=0;i<minimo;i++){
+                    if (curr[i]>titulo[i]){
+                        froot = &((*prev)->alfaNext);
+                        (*k)->alfaNext = *froot;
+                        (*prev)->alfaNext = *k;
+                    return true;
+                    }else if(curr[i]<titulo[i]){
+                        i = minimo;
+                    }else{
+                        i ++;
+                        if (i==minimo && curr.length()>titulo.length()){
+                            cout<<"hm"<<endl;
+                            froot = &((*prev)->alfaNext);
+                            (*k)->alfaNext = *froot;
+                            (*prev)->alfaNext = *k;
+                        }
+                        
+                    }
+                }
+                
+                prev = froot;
+                froot = &((*froot)->alfaNext);
+            }
+            
+            (*prev)->alfaNext = *k;
+            return true;
+            //}
+        }*/
+
+        bool rankeada(func **&froot, func **&k){
+            int total = (*k)->nText;
+            int curr;
+            func **prev;
+            prev = froot;
+            froot = &((*froot)->rankNext);
+            while((*froot)){
+                curr = (*froot)->nText;
+                if(curr<total){
+                    froot = &((*prev)->rankNext);
+                    (*k)->rankNext = *froot;
+                    (*prev)->rankNext = *k;
+                    return true;
+                }
+                prev = froot;
+                froot = &((*froot)->rankNext); 
+            }
+            (*prev)->rankNext = *k;
+            return true;
+        }
 };
+
+
 
 int main(){
     SuffixTree arvore;
     arvore.insert("*");
 
-    ofstream outfile ("test.txt");
-
-    //outfile << "O território peruano abrigou a civilização de Caral, uma das mais antigas do mundo, bem como o Império Inca, considerado o maior Estado da América pré-colombiana. O seu território foi elevado a vice-reinado pelo Império Espanhol, no século XVI. Atualmente, o Peru é uma república presidencialista democrática dividida em 25 regiões. A sua geografia é variada, exibindo desde planícies áridas na costa do Pacífico, aos picos nevados dos Andes e à floresta amazônica, características que proporcionam a este país diversos recursos naturais."<< endl;
-    outfile << "Peruvian territory was home to several ancient cultures. Ranging from the Norte Chico civilization starting in 3500 BC, the oldest civilization in the Americas and one of the five cradles of civilization, to the Inca Empire, the largest state in pre-Columbian America, the territory now including Peru has one of the longest histories of civilization of any country, tracing its heritage back to the 4th millennia BCE." <<endl;
-    outfile.close();
-
-    // filestream variable file 
     fstream file; 
-    string word, t, q, filename, a; 
-    int i;
-    // filename of the file 
-    filename = "test.txt"; 
-  
+    string word, t, q, filename, a, c, d, text_id, suf, r1,r2,resultado; 
+    string b[2];
+    int i,j;
+    bool notText,reading;
+    string titulo = "\0";
+    int read_t = 0;
+    int ocorr = 0;
+    // for (k = 0; k < 154; k++){
+    filename = "dicionario.txt";
     // opening file 
     file.open(filename.c_str()); 
-  
+    if(!file){
+        cout<<"erro"<<endl;
+    }
     // extracting words from the file 
+    reading = 1;
+    notText = 0;
     while (file >> word) { 
         i = 0;
         a+='*';
-        while (word[i] != '\0') {
-        if ((word[i] > 47 && word[i] < 58) || (word[i] > 64 && word[i] < 91) || (word[i] > 96 && word[i] < 123) ){
-            a += tolower(word[i]);
+        //cout<<word<<endl;
+        if(word.substr(0,3)=="id="){
+            notText = 1;
+            text_id.clear();
+            text_id = word;
+        }
+
+        /*if(notText){
+            if(word[0]==34){
+                text_id = word;
+            }
+        
+            if (read_t == 1){
+                if(word.substr(0,12)==("nonfiltered=")){
+                    suf = "\0";
+                    for(j = 0;j<titulo.length();j++){
+                        suf +=titulo[j];
+                        if(titulo[j]==32 || j==titulo.length()-1){
+                            suf += "\0";
+                            i = 0;
+                            a = "*";
+                        while (suf[i] != '\0') {
+                            if (((suf[i] > 47 && suf[i] < 58) || (suf[i] > 64 && suf[i] < 91) || (suf[i] > 96 && suf[i] < 123)) && (suf[i]!=32) ){
+                                a += tolower(suf[i]);
+                            }
+                            i++;
+                        }
+                        if(a.length()>1){
+                        arvore.insert(a);
+                        arvore.insert_loc(a,text_id,read_t,titulo);
+                        }
+                        a.clear();
+                        suf.clear();
+                    }
+                    }
+                    read_t = 0;
+                }else{
+                    titulo += " " + word;
+                }
+            }else if(word.substr(0,6)==("title=")){
+                read_t = 1;
+                word = word.substr(6);
+                titulo = word;
+            }*/
+
+        //}else{  //cout<<"aqui"<<endl;
+        titulo = " ";
+        if(notText == 1){
+                if(word.substr(0,7)=="title="){
+                    //titulo.clear();
+                    //titulo = word.substr(7);
+                }else if(word[word.length()-1]==34){
+                    //titulo+=word;
+                    notText = 0;
+                }else{
+                    //titulo += word;
+                }
+        }else{ 
+            if(word[0] == 38){
+                ocorr = stoi(word.substr(1));
+            }else{
+                a = "*";
+                while (word[i] != '\0') {
+                    if ((word[i] > 47 && word[i] < 58) || (word[i] > 64 && word[i] < 91) || (word[i] > 96 && word[i] < 123) ){
+                        a += tolower(word[i]);
+                    }
+                    i++;
+                }
+                cout<<a<<endl;
+                if(a.length()>1){
+                    arvore.insert(a);
+                    arvore.insert_loc(a,text_id,ocorr,titulo);
+                }
+                }}
+        //}
+        a.clear();
+
+        if(word[word.length()-1]==62){
+            notText=0;
+        }
+        
+    }
+    file.close();
+    file.clear();
+//}
+
+bool pesquisar = 1;
+while(pesquisar==1){
+    string query;
+    func **k;
+    func **l;
+    func **rs;
+    *k = new func("\0");
+    *l = new func("\0");
+    cout<<"digite sua pesquisa:";
+    cin>>query;
+    clock_t Ticks[2];
+    Ticks[0] = clock();
+    a = "*";
+    while (query[i] != '\0') {
+        if ((query[i] > 47 && query[i] < 58) || (query[i] > 64 && query[i] < 91) || (query[i] > 96 && query[i] < 123) ){
+            a += tolower(query[i]);
+        }
+        else if(query[i]==32){
+            b[2] = a;
+            a = "*";
         }
         i++;
+    }
+    b[1] = a;
+    if(b[1].length()){
+        if (arvore.search(b[0],k)){
+            Ticks[1] = clock();
+            double Tempo = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
+            rs = k;
+            cout<<(*k)->nText<<" resultados encontrados em "<< Tempo<< "ms"<<endl;
+            cout<<(*k)->alfaNext<<endl;
+            *k = (*k)->rankNext;
+            i = 0;
+            while(*k){
+                cout<<i<<"->"<<(*k)->textId<<endl;
+                cout<<(*k)->nText<<endl;
+                cout<<(*k)->nTitle<<endl;
+                //cout<<(*k)->alfaNext<<endl;
+                i +=1;
+                if (i%20==0){
+                    cout<<"ver mais resultados? [s/n]"<<endl;
+                    string ask;
+                    cin>>ask;
+                    if (ask == "n"){
+                        break;
+                    }
+                }
+                *k = (*k)->rankNext;
+            }
+            cout<<"quer abrir algum arquivo?"<<endl;
+            cout<<"digite o número do arquivo ou qualquer letra para sair:"<<endl;
+            cin>>query;
+            if(stoi(query)){
+                if (stoi(query)>i){
+                    cout<<"não existe"<<endl;
+                }else{
+                    i = stoi(query);
+                    while(i){
+                        *k = (*k)->rankNext;
+                        i-=1;
+                    }
+                    filename = "newtxt_"+ ((*k)->textId).substr(0,3);
+                    file.open(filename.c_str()); 
+                    if(!file){
+                        cout<<"erro"<<endl;
+                    }
+                    cout<<(*k)->title + "\n";
+                    while(file >> word){
+                        if(word.substr(0,3)== "id="){
+                           text_id = word.substr(3); 
+                        }
+                        while(text_id==(*k)->textId){
+                            cout<<word;
+                        }
+                    }
+                    cout<<" "<<endl;
+                }
+            }
+        }else{
+            cout<<"não encontrado"<<endl;
         }
-        if (a!=" "){
-            arvore.insert(a);
+    }else{
+        if (arvore.search(b[0],k)||arvore.search(b[1],l)){
+            Ticks[1] = clock();
+            double Tempo = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
+            r1 = ((*k)->title);
+            r2 = ((*l)->title);
+            i,j = 0;
+            while(i < r1.length() && j < r2.length()){
+                if(r1[i]==32 && r2[j]==32){
+                    if(stoi(c)==stoi(d)){
+                        resultado += c;
+                    }
+                    else if(stoi(c)<stoi(d)){
+                        c = "\0";
+                        i++;
+                    }
+                    else{
+                        d = "\0";
+                        j++;
+                    }
+                }
+                while(r1[i]!=32){
+                    c += r1[i];
+                    i++;
+                }
+                while(r2[j]!=32){
+                    d += r2[j];
+                    j++;
+                }
+            }
+            cout<<(*k)->nText<<" resultados encontrados em "<< Tempo<< "ms"<<endl;
+            cout<<(*k)->alfaNext<<endl;
+            *k = (*k)->rankNext;
+            i = 0;
+            j = 0;
+            d = "\0";
+            while(*k){
+                while(resultado[j]!=32){
+                    d += resultado[j];
+                    j++;
+                }
+                if((*k)->textId==d){
+                    cout<<i<<"->"<<(*k)->textId<<endl;
+                    cout<<(*k)->nText<<endl;
+                    cout<<(*k)->nTitle<<endl;
+                    //cout<<(*k)->alfaNext<<endl;
+                    i +=1;
+                    j++;
+                    d = "\0";
+                }
+                if (i%20==0){
+                    cout<<"ver mais resultados? [s/n]"<<endl;
+                    string ask;
+                    cin>>ask;
+                    if (ask == "n"){
+                        break;
+                    }
+                }
+                *k = (*k)->rankNext;
+            }
+            cout<<"quer abrir algum arquivo?"<<endl;
+            cout<<"digite o número do arquivo ou qualquer letra para sair:"<<endl;
+            cin>>query;
+            if(stoi(query)){
+                if (stoi(query)>i){
+                    cout<<"não existe"<<endl;
+                }else{
+                    i = stoi(query);
+                    while(i){
+                        *k = (*k)->rankNext;
+                        if(resultado.find((*k)->textId)){
+                            i-=1;
+                        }
+                    }
+                    filename = "newtxt_"+ ((*k)->textId).substr(0,3);
+                    file.open(filename.c_str()); 
+                    if(!file){
+                        cout<<"erro"<<endl;
+                    }
+                    cout<<(*k)->title + "\n";
+                    while(file >> word){
+                        if(word.substr(0,3)== "id="){
+                           text_id = word.substr(3); 
+                        }
+                        while(text_id==(*k)->textId){
+                            cout<<word;
+                        }
+                    }
+                    cout<<" "<<endl;
+                }
+            }
+        }else{
+            cout<<"não encontrado"<<endl;
         }
-        // displaying content 
-        cout << a << endl; 
-        a.clear();
-        }
+
+    }
+    
+    cout<<"fazer outra pesquisa? [s/n]"<<endl;
+    cin>>query;
+    if(query == "n"){
+        pesquisar = 0;
+    }
+    }
     return 0;
 };
