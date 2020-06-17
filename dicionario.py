@@ -2,7 +2,7 @@ from __future__ import print_function
 import json
 import re
 
-
+#conta quantas vezes cada palavra de cada artigo se repete no mesmo
 for j in range (136):
     titulo = "newtxt/newtext_" + str(j)
     arquivo = open(titulo,"r",  encoding= "ISO-8859-15")
@@ -34,7 +34,6 @@ for j in range (136):
                         dicionario += idzinha + " "
                     
         dicionario += "\n"
-        #print(dicionario)
     di = "dicionarios/d_" + str(j)
     aux = open(di,'w')
     aux.write(dicionario)
