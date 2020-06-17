@@ -10,6 +10,8 @@
 
 using namespace std;
 
+//cada artigo é filtrado, recebe uma nova id é inteiramente armazenado em uma linha do arquivo,
+//cada arquivo contém 10000 artigos 
 int main(){
     fstream file;
     ofstream novo; 
@@ -29,17 +31,14 @@ int main(){
         cout<<"erro"<<endl;
     }
     for (int k = 1; k < 155; k++){
-    // filename of the file 
     filename = "raw.en/text_"+ to_string(k); 
     cout<<filename<<endl;
-    // opening file 
     file.open(filename.c_str()); 
     if(!file){
         cout<<"erro"<<endl;
     }
    
     
-    // extracting words from the file 
     reading = 1;
     notText = 0;
     while (file >> word) { 
