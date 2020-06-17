@@ -10,7 +10,7 @@
 
 using namespace std;
 
-//cada artigo é filtrado, recebe uma nova id é inteiramente armazenado em uma linha do arquivo,
+//cada artigo é filtrado, recebe uma nova id e é inteiramente armazenado em uma linha do arquivo,
 //cada arquivo contém 10000 artigos 
 int main(){
     fstream file;
