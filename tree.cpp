@@ -354,14 +354,17 @@ class SuffixTree{
         a = pCur;
         aux = &((*pCur)->address);
         if(*aux!=nullptr){
-        file<<(*pCur)->suffix+" ";
-        file<<to_string((*aux)->nText)+" ";
-        aux = &((*aux)->rankNext);
-        while(*aux){
-            file<<(*aux)->textId+" ";
+            file<<(*pCur)->suffix+" ";
+            file<<to_string((*aux)->nText)+" ";
             aux = &((*aux)->rankNext);
+            while(*aux){
+                file<<(*aux)->textId+" ";
+                aux = &((*aux)->rankNext);
+            }
+        }else{
+            file<<"&"+(*pCur)->suffix+" ";
         }
-        }
+
         for(i = 0;i<36;i++){
             a = pCur;
             (table.find(filhos[i])->second)(a);
@@ -379,48 +382,53 @@ class SuffixTree{
         string line;
         Node **pNode ;
         pNode = &pRoot;
-        *pNode = new Node("*");
         file.open(filename);
         getline(file,line);
         stringstream split;
         split << line;
         string cur;
         while(split >> cur){
-            if(run_diserialize(pNode, cur, split)) break;
+            pNode = &pRoot;
+            run_diserialize(pNode,cur,split);
         }
     }
 
 
-    bool run_diserialize (Node **&pNode, string curr, stringstream & split){
+    bool run_diserialize (Node **&pNode, string &curr, stringstream & split){
         func **cur;
+        Node **pNew;
         int i;
         string curl;string address; string textid; string ntext;
-        if (curr==")") return 1;
+        if (curr==")") return true;
         Node **aux = pNode;
         curl = curr[0];
-        (table.find(curl)->second)(pNode);
-        *pNode = new Node(curr);
-        split >> address;
-        *cur = new func("*");
-        (*cur)->nText= stoi(address);
-        (*pNode)->address = *cur;
-        for (i = 0;i<stoi(address);i++){
-            textid.clear();
-            split >> textid;
-            func **a;
-            cout<<textid<<endl;
-            *a = new func(textid);
-            cout<<"ih"<<endl;
-            (*cur)->rankNext = *a;
-            cout<<"a"<<endl;
-            cur = &((*cur)->rankNext);  
-            cout<<"b"<<endl;    
-        } 
+        if(curl!="&"){
+            (table.find(curl)->second)(pNode);
+            *pNode = new Node(curr);
+            split >> address;
+            cur = &((*pNode)->address);
+            *cur = new func("*");
+            (*cur)->nText= stoi(address);
+            (*pNode)->address = *cur;
+            for (i = 0;i<stoi(address);i++){
+                textid.clear();
+                split >> textid;
+                cur = &((*cur)->rankNext);  
+                *cur = new func(textid); 
+            } 
+        }else{
+            cout<<curr<<endl;
+            curl = curr[1];
+            (table.find(curl)->second)(pNode);
+            *pNode = new Node(curr.substr(1));
+        }
+
         while(split >> curr){ 
             if(run_diserialize(pNode, curr, split)) break;
         }
+        
         pNode = aux;
-        return 0;
+        return false;
     }
 };
 
@@ -490,7 +498,7 @@ int main(){
         file.clear();
     }
     cout<<"serializando"<<endl;
-    arvore.serialize("arvore1");
+    arvore.serialize("arvore");
 
 //---------------------------------------pesquisa-na-árvore---------------------------------------
     bool pesquisar = 1;
@@ -499,6 +507,7 @@ int main(){
         func **k;
         func **l;
         func **rs;
+        int hm;
         cout<<"digite sua pesquisa:";
         cin>>query;
         clock_t Ticks[2];
@@ -529,6 +538,7 @@ int main(){
                     file.open(filename.c_str()); 
                     while(file >> word){
                         if(cnid==nid){
+                                hm++;
                                 if(word.substr(0,6) == "title="){
                                     cout<<word.substr(6)+" ";
                                 }
@@ -597,10 +607,11 @@ int main(){
                         cout<<" "<<endl;
                     }
                 }
+            }else{
+                cout<<"não encontrado"<<endl;
             }
+
             a.clear();
-        }else{
-            cout<<"não encontrado"<<endl;
         }   
             cout<<"fazer outra pesquisa? [s/n]"<<endl;
             cin>>query;
@@ -610,3 +621,4 @@ int main(){
     }
     return 0;
 };
+
