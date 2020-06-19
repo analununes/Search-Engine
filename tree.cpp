@@ -558,7 +558,7 @@ int main(){
                     arr1[i] = resultados[2*i + 1];
                 }
                 // Entering values in vector of pairs
-                for (int i=0; i<z; i++) vect.push_back( make_pair(arr[i],arr1[i]) );
+                for (int i=0; i<z; i++) vect.push_back( make_pair(arr1[i],arr[i]) );
                 // using modified sort() function to sort
                 sort(vect.begin(), vect.end(), sortinrev);
 
