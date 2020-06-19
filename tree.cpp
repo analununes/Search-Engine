@@ -13,21 +13,20 @@ using namespace std;
 
 ///////////////////////////////////// estruturas /////////////////////////////////////////////////////////////
 //-----------------------node para linked list dos resultados------------------------------------------------
+
 struct func{
  string textId;
- string title;
- int nTitle;
  int nText;
- func *alfaNext;
  func *rankNext;
+ vector<int> resultado;
+
 
  func(string n): textId(n){
- nTitle = 0;
  nText = 0;
- alfaNext = nullptr;
  rankNext = nullptr;
- title = "\0";
  }
+
+ func(vector<int> r): resultado(r){}
 };
 
 //----------------------------node para palavras da árvore---------------------------------------------------
@@ -52,6 +51,7 @@ struct Node {
  Node *n1 = nullptr; Node *n2 = nullptr; Node *n3 = nullptr; Node *n4 = nullptr;Node *n5 = nullptr;
  Node *n6 = nullptr; Node *n7 = nullptr; Node *n8 = nullptr; Node *n9 = nullptr;Node *n0 = nullptr;
  }
+ 
 }; 
 
 //--------------------------------funções usadas no map-------------------------------------------------------
@@ -271,7 +271,6 @@ class SuffixTree{
                 (*froot)->nText = curn; 
                 *fnew = new func(text_id);
                 (*fnew)->nText = read_t;
-                (*fnew)->title = titulo;
                 prev = froot;
                 rankeada(prev,fnew);
                 return true;
@@ -289,7 +288,7 @@ class SuffixTree{
         int total = (*k)->nText;
         int curr;
         func **prev;
-        prev = froot;
+        /*prev = froot;
         froot = &((*froot)->rankNext);
         while((*froot)){
             curr = (*froot)->nText;
@@ -302,6 +301,10 @@ class SuffixTree{
             prev = froot;
             froot = &((*froot)->rankNext); 
         }
+        (*prev)->rankNext = *k;*/
+        prev = froot;
+        froot = &((*froot)->rankNext);
+        (*k)->rankNext = *froot;
         (*prev)->rankNext = *k;
         return true;
     }
@@ -359,6 +362,7 @@ class SuffixTree{
             aux = &((*aux)->rankNext);
             while(*aux){
                 file<<(*aux)->textId+" ";
+                file<<to_string((*aux)->nText)+" ";
                 aux = &((*aux)->rankNext);
             }
         }else{
@@ -383,22 +387,23 @@ class SuffixTree{
         Node **pNode ;
         pNode = &pRoot;
         file.open(filename);
-        getline(file,line);
-        stringstream split;
-        split << line;
+        //getline(file,line);
+        //stringstream split;
+        //split << line;
         string cur;
-        while(split >> cur){
+        while(file >> cur){
             pNode = &pRoot;
-            run_diserialize(pNode,cur,split);
+            run_diserialize(pNode,cur,file);
         }
     }
 
 
-    bool run_diserialize (Node **&pNode, string &curr, stringstream & split){
+    bool run_diserialize (Node **&pNode, string &curr, ifstream & split){
         func **cur;
         Node **pNew;
-        int i;
+        int r,i;
         string curl;string address; string textid; string ntext;
+        vector<int> resultados;
         if (curr==")") return true;
         Node **aux = pNode;
         curl = curr[0];
@@ -409,15 +414,21 @@ class SuffixTree{
             cur = &((*pNode)->address);
             *cur = new func("*");
             (*cur)->nText= stoi(address);
-            (*pNode)->address = *cur;
-            for (i = 0;i<stoi(address);i++){
+            //(*pNode)->address = *cur;
+            for (i = 0;i< stoi(address);i++){
                 textid.clear();
                 split >> textid;
-                cur = &((*cur)->rankNext);  
-                *cur = new func(textid); 
+                //cur = &((*cur)->rankNext);  
+                //*cur = new func(textid); 
+                ntext.clear();
+                split >> ntext;
+                //(*cur)->nText = stoi(ntext);
+                resultados.push_back(stoi(textid));
+                resultados.push_back(stoi(ntext));
             } 
+            *cur = new func(resultados);
+            (*pNode)->address = *cur;
         }else{
-            cout<<curr<<endl;
             curl = curr[1];
             (table.find(curl)->second)(pNode);
             *pNode = new Node(curr.substr(1));
@@ -432,13 +443,19 @@ class SuffixTree{
     }
 };
 
+// Driver function to sort the vector elements by  
+// first element of pair in descending order
+bool sortinrev(const pair<int,int> &a, const pair<int,int> &b){
+       return (a.first > b.first);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main(){
     SuffixTree arvore;
     arvore.insert("*");
-    //arvore.diserialize("arvore");
+    arvore.diserialize("arvore*");
 
     fstream file; 
     string word, t, q, filename, a, c, d, text_id, suf, r1,r2,resultado; 
@@ -452,7 +469,7 @@ int main(){
 //--------------------------------------criando-a-árvore------------------------------------------
     //abre os k primeiros arquivos e insere suas palavras na árvore, juntamente com ids dos
     //resultados e número de vezes em que a palavra foi encontrada no texto
-    for (k = 0; k < 1; k++){
+    /*for (k = 0; k < 136; k++){
         filename = "dicionarios/d_" + to_string(k); 
         cout<<filename<<endl;
         file.open(filename.c_str()); 
@@ -498,41 +515,60 @@ int main(){
         file.clear();
     }
     cout<<"serializando"<<endl;
-    arvore.serialize("arvore");
+
+
+    arvore.serialize("arvore60");*/
 
 //---------------------------------------pesquisa-na-árvore---------------------------------------
     bool pesquisar = 1;
     while(pesquisar==1){
-        string query;
-        func **k;
-        func **l;
-        func **rs;
-        int hm;
-        cout<<"digite sua pesquisa:";
-        cin>>query;
-        clock_t Ticks[2];
-        Ticks[0] = clock();
-        a = "*";
-        i = 0;
-        while (i != query.length()) {
-            if ((query[i] > 47 && query[i] < 58) || (query[i] > 64 && query[i] < 91) || (query[i] > 96 && query[i] < 123) ){
-                a += tolower(query[i]);
-            }
-            i++;
+    string query;
+    func **k;
+    func **l;
+    func **rs;
+    int hm;
+    cout<<"digite sua pesquisa:";
+    cin>>query;
+    clock_t Ticks[2];
+    Ticks[0] = clock();
+    a = "*";
+    i = 0;
+    while (i != query.length()) {
+        if ((query[i] > 47 && query[i] < 58) || (query[i] > 64 && query[i] < 91) || (query[i] > 96 && query[i] < 123) ){
+            a += tolower(query[i]);
         }
+    i++;
+    }
         if(a.length()>0){
             if (arvore.search(a,k)){
                 Ticks[1] = clock();
+                vector<int> resultados;
+                resultados = (*k)->resultado;
                 double Tempo = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
                 rs = k;
-                cout<<(*k)->nText<<" resultados encontrados em "<< Tempo<< "ms"<<endl;
-                cout<<(*k)->alfaNext<<endl;
-                *k = (*k)->rankNext;
                 vector<string> titulos;
                 i = 0;
-                while(*k){
+
+                vector< pair <int,int> > vect;
+                int z = resultados.size()/2;
+                int arr[z];
+                int arr1[z];
+                for(int i=0; i<z;i++){
+                    arr[i] = resultados[2*i];
+                    arr1[i] = resultados[2*i + 1];
+                }
+                // Entering values in vector of pairs
+                for (int i=0; i<z; i++) vect.push_back( make_pair(arr[i],arr1[i]) );
+                // using modified sort() function to sort
+                sort(vect.begin(), vect.end(), sortinrev);
+
+                //resultados = (*k)->resultado;
+                cout<<resultados.size()/2<<" resultados encontrados em "<< Tempo<< "ms"<<endl;
+                cout<<" "<<endl;
+                while(i < resultados.size()/2){
                     cout<<i<<"->";
-                    nid = stoi((*k)->textId);
+                    //nid = resultados[2*i];
+                    nid = vect[i].second;
                     openfile = floor(nid/10000);
                     filename = "newtxt/newtext_"+ to_string(openfile);
                     file.open(filename.c_str()); 
@@ -555,8 +591,7 @@ int main(){
                             cnid = stoi(word.substr(3));
                             }
                     }
-                    cout<<(*k)->nText<<endl;
-                    titulos.push_back((*k)->textId);
+                    cout<<vect[i].first<<endl;
                     i +=1;
                     if (i%20==0){
                         cout<<"ver mais resultados? [s/n]"<<endl;
@@ -567,7 +602,6 @@ int main(){
                             break;
                         }
                     }
-                    *k = (*k)->rankNext;
                 }
                 cout<<"quer abrir algum arquivo?"<<endl;
                 cout<<"digite o número do arquivo ou n para sair:"<<endl;
@@ -577,7 +611,8 @@ int main(){
                         cout<<"não existe"<<endl;
                     }else{
                         i = stoi(query);
-                        nid = stoi(titulos[i]);
+                        //nid = resultados[2*i];
+                        nid = vect[i].second;
                         openfile = floor(nid/10000);
                         filename = "newtxt/newtext_"+ to_string(openfile);
                         file.open(filename.c_str()); 
@@ -610,15 +645,16 @@ int main(){
             }else{
                 cout<<"não encontrado"<<endl;
             }
-
+        }
             a.clear();
-        }   
+          
             cout<<"fazer outra pesquisa? [s/n]"<<endl;
             cin>>query;
             if(query == "n"){
                 pesquisar = 0;
             }
-    }
+        
+        }
     return 0;
 };
 
