@@ -18,6 +18,6 @@ Por fim, execute a tree em uma pasta que também contenha "arvore" e "newtxt".
 Todos os códigos em c++ foram compilados com g++
 
 
-Link do video: https://youtu.be/MvinJVoLEsA
+
 
 
